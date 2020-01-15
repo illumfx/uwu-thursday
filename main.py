@@ -16,7 +16,7 @@ class UwuThursday(commands.Bot):
 		super().__init__(command_prefix=self.prefix)
 
 	async def on_ready(self):
-		await self.change_presence(activity=discord.Activity(name="uwu", type=3))
+		await self.change_presence(activity=discord.Activity(name="uwu!", type=3))
 
 		for guild in self.guilds:
 			self.uwu[guild.id] = []
@@ -36,10 +36,10 @@ class UwuThursday(commands.Bot):
 		if message.author == self.user or not self.is_ready():
 			return
 
-		if message.created_at.strftime("%A") == "Wednesday": # Thursday
+		if message.created_at.strftime("%A") == "Thursday":
 			if message.content in [f"<@!{self.user.id}>", f"<@{self.user.id}>"]:
 				if self.uwu.get(message.guild.id, None):
-					await message.channel.send(f"`{len(self.uwu[message.guild.id])}` {'people' if len(self.uwu[message.guild.id]) == 1 else 'peoples'} uwu'd today.")
+					await message.channel.send(f"`{len(self.uwu[message.guild.id])}` {'person' if len(self.uwu[message.guild.id]) == 1 else 'people'} uwu'd today.")
 				else:
 					await message.channel.send("Nobody uwu'd today.")	
 					
