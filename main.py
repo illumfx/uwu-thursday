@@ -13,13 +13,13 @@ class UwuThursday(commands.Bot):
 			self.founder_id = json_file["founder_id"]
 
 		self.uwu = {}
-		super().__init__(command_prefix=self.prefix)
+		super().__init__(command_prefix=self.prefix, description=f'I\'m a meme bot to count each time someone "uwu\'s" in the chat. But with a little twist, it\'s only allowed on thursdays.')
 
 	async def on_ready(self):
 		await self.change_presence(activity=discord.Activity(name="uwu!", type=3))
 
-		for guild in self.guilds:
-			self.uwu[guild.id] = []
+		if not self.uwu:
+			self.prepare_list()
 
 		self._owner = self.get_user(self.owner_id)
 		self._founder = self.get_user(self.founder_id)
@@ -36,19 +36,20 @@ class UwuThursday(commands.Bot):
 		if message.author == self.user or not self.is_ready():
 			return
 
-		if message.created_at.strftime("%A") == "Thursday":
-			if message.content in [f"<@!{self.user.id}>", f"<@{self.user.id}>"]:
-				if self.uwu.get(message.guild.id, None):
-					await message.channel.send(f"`{len(self.uwu[message.guild.id])}` {'person' if len(self.uwu[message.guild.id]) == 1 else 'people'} uwu'd today.")
-				else:
-					await message.channel.send("Nobody uwu'd today.")	
-					
-			elif message.content.lower() == "uwu":
+		if message.content in [f"<@!{self.user.id}>", f"<@{self.user.id}>"]:
+			await message.channel.send(f"Hey, i'm {self.user.name} my prefix is `{self.prefix}`.\n{self.description}")
+
+		elif message.created_at.strftime("%A") == "Thursday":				
+			if message.content.lower() == "uwu":
 				if message.author.id not in self.uwu[message.guild.id]:
-					await message.channel.send("Succesfully uwu'd today!")
+					await message.channel.send("Successfully uwu'd today!", delete_after=2.5)
 					self.uwu[message.guild.id] == self.uwu[message.guild.id].append(message.author.id)
 				else:
 					await message.channel.send(f"{message.author} already uwu'd today.", delete_after=2.5)
+
+		elif message.created_at.strftime("%A") == "Friday":
+			self.uwu = {}
+			self.prepare_list()
 
 		await self.process_commands(message)
 
@@ -56,15 +57,17 @@ class UwuThursday(commands.Bot):
 		self.load_extension("libneko.extras.superuser")
 		super().run(self.token)
 
+	def prepare_list(self):
+		for guild in self.guilds:
+			self.uwu[guild.id] = []
+
 	@property
 	def owner(self):
 		return self._owner or self.get_user(self.owner_id)
 
 	@property
 	def founder(self):
-		return self._founder or self.get_user(self.founder_id)
-	
-	
+		return self._founder or self.get_user(self.founder_id)	
 		
 bot = UwuThursday()
 
@@ -74,11 +77,19 @@ async def about(ctx: commands.Context):
 	owner = bot.owner
 	founder = bot.founder
 
-	embed = discord.Embed(color=discord.Color.blurple(), description=f'{bot.user.name} is a meme bot to count each time someone "uwu\'s" in the chat. But with a little twist, it\'s only allowed on thursdays.')
+	embed = discord.Embed(color=discord.Color.blurple(), description=bot.description)
 	embed.set_author(name=bot.user.name, icon_url=bot.user.avatar_url_as(static_format="png"))
 	embed.add_field(name="Mentions:", value=f"{owner.mention} | Bot Creator\n{founder.mention} | Idea source")
 
 	await ctx.send(embed=embed)
+
+@bot.command()
+async def count(ctx: commands.Context):
+	"""Uwu count per guild"""
+	if bot.uwu.get(ctx.guild.id, None):
+		await ctx.send(f"`{len(bot.uwu[ctx.guild.id])}` {'person' if len(bot.uwu[ctx.guild.id]) == 1 else 'people'} uwu'd today.")
+	else:
+		await ctx.send("Nobody uwu'd today. 😟")	
 
 @bot.command()
 @commands.is_owner()
