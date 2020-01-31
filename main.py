@@ -42,8 +42,8 @@ class UwuThursday(commands.Bot):
 		elif message.created_at.strftime("%A") == "Thursday":				
 			if message.content.lower() == "uwu":
 				if message.author.id not in self.uwu[message.guild.id]:
-					await message.channel.send("Successfully uwu'd today!", delete_after=2.5)
-					self.uwu[message.guild.id] == self.uwu[message.guild.id].append(message.author.id)
+					await message.channel.send(f"Successfully uwu'd today!{' You are the first one today.' if not len(self.uwu[message.guild.id]) else ''}", delete_after=2.5)
+					self.uwu[message.guild.id].append(message.author.id)
 				else:
 					await message.channel.send(f"{message.author} already uwu'd today.", delete_after=2.5)
 
@@ -86,10 +86,13 @@ async def about(ctx: commands.Context):
 @bot.command()
 async def count(ctx: commands.Context):
 	"""Uwu count per guild"""
-	if bot.uwu.get(ctx.guild.id, None):
-		await ctx.send(f"`{len(bot.uwu[ctx.guild.id])}` {'person' if len(bot.uwu[ctx.guild.id]) == 1 else 'people'} uwu'd today.")
+	if ctx.message.created_at.strftime("%A") == "Thursday":
+		if bot.uwu.get(ctx.guild.id, None):
+			await ctx.send(f"`{len(bot.uwu[ctx.guild.id])}` {'person' if len(bot.uwu[ctx.guild.id]) == 1 else 'people'} uwu'd today.")
+		else:
+			await ctx.send("Nobody uwu'd today. 😟")
 	else:
-		await ctx.send("Nobody uwu'd today. 😟")	
+		await ctx.send("*Checks calender ...* IT'S NOT THURSDAY!")
 
 @bot.command()
 @commands.is_owner()
@@ -98,4 +101,6 @@ async def kys(ctx: commands.Context):
 	await ctx.message.add_reaction("👌")
 	await bot.logout()
 
-bot.run()
+if __name__ == "__main__":
+	bot.run()
+
