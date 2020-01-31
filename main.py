@@ -101,6 +101,6 @@ async def kys(ctx: commands.Context):
 	await ctx.message.add_reaction("👌")
 	await bot.logout()
 
-if __name__ == "__main__":
-	bot.run()
+
+bot.run()
 
