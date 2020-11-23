@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import json
 from discord.ext import commands
@@ -23,9 +24,6 @@ class UwuThursday(commands.Bot):
         if not self.uwu:
             self.prepare_list()
 
-        self._owner = self.get_user(self.owner_id)
-        self._founder = self.get_user(self.founder_id)
-
         print(
             f"Logged in as {self.user}\nServing {len(self.users)} users and {len(self.guilds)} guilds."
         )
@@ -45,11 +43,11 @@ class UwuThursday(commands.Bot):
             return
 
         if message.content in [f"<@!{self.user.id}>", f"<@{self.user.id}>"]:
-            await message.channel.send(
+            return await message.channel.send(
                 f"Hey, i'm {self.user.name} my prefix is `{self.prefix}`.\n{self.description}"
             )
 
-        elif message.created_at.strftime("%A") == "Thursday":
+        if message.created_at.strftime("%A") == "Thursday":
             if message.content.lower() == "uwu":
                 if message.author.id not in self.uwu[message.guild.id]:
                     await message.channel.send(
