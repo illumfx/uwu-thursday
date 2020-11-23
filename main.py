@@ -48,11 +48,11 @@ class UwuThursday(commands.Bot):
             )
 
         if message.created_at.strftime("%A") == "Thursday":
-            if message.content.lower() == "uwu":
+            if message.content.lower() in ["uwu", "uwu!"]:
                 if message.author.id not in self.uwu[message.guild.id]:
                     await message.channel.send(
                         f"Successfully uwu'd today!{' You are the first one today.' if not len(self.uwu[message.guild.id]) else ''}",
-                        delete_after=2.5,
+                        delete_after=5,
                     )
                     self.uwu[message.guild.id].append(message.author.id)
                 else:
